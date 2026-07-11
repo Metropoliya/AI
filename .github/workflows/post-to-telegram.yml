@@ -1,0 +1,29 @@
+name: Post reels to Telegram
+
+# Робот-постер контент-завода ara_studio.
+# Запускается по расписанию (cron) и вручную (workflow_dispatch),
+# берёт posts.json и публикует видео+тексты в Telegram-канал.
+# Работает целиком в облаке GitHub — ничего запускать вручную не нужно.
+
+on:
+  workflow_dispatch:        # кнопка "Run workflow" + запуск по API
+  schedule:
+    - cron: '0 9 * * *'     # каждый день в 09:00 UTC (12:00 Брест). Меняется свободно.
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Publish batch to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}   # хранится в Secrets репо
+          TELEGRAM_CHAT_ID: '-1004380165542'                      # канал ara_studio
+        run: python telegram_publisher.py posts.json
