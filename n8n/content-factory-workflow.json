@@ -1,0 +1,459 @@
+{
+  "name": "Контент-завод ara_studio (Higgsfield → Telegram)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "id": "расписание-(1000-ежедневно)",
+      "name": "Расписание (10:00 ежедневно)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "topic",
+              "value": "мотивация ухода за волосами",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "avatar_media_id",
+              "value": "fa4b5e1e-0cf8-451f-9fbb-92ea36de09b1",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "voice_id",
+              "value": "438ba3ef-da19-43ee-aa02-7d3a21a974a4",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "chat_id",
+              "value": "-1004380165542",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "конфиг-завода",
+      "name": "Конфиг завода",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:'Ты SMM для бьюти-салона ara_studio (Брест). Верни JSON {\\\"script\\\":\\\"короткая реплика в кадр 1-2 предложения на русском\\\",\\\"caption\\\":\\\"текст поста с эмодзи и 4-6 хэштегами\\\"} по теме.'},{role:'user',content:$json.topic}],response_format:{type:'json_object'}}) }}"
+      },
+      "id": "llm-текст-рилса",
+      "name": "LLM: текст рилса",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "script",
+              "value": "={{ JSON.parse($json.choices[0].message.content).script }}",
+              "type": "string"
+            },
+            {
+              "id": "b2",
+              "name": "caption",
+              "value": "={{ JSON.parse($json.choices[0].message.content).caption }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "id": "достать-script+caption",
+      "name": "Достать script+caption",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.higgsfield.ai/v1/audio/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({model:'seed_audio',voice_type:'element',voice_id:$json.voice_id,prompt:$json.script}) }}"
+      },
+      "id": "higgsfield-озвучка",
+      "name": "Higgsfield: озвучка",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "id": "ждать-аудио-20с",
+      "name": "Ждать аудио 20с",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://platform.higgsfield.ai/v1/jobs/' + $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "статус-аудио",
+      "name": "Статус аудио",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "аудио-готово?",
+      "name": "Аудио готово?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.higgsfield.ai/v1/video/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({model:'wan2_7',aspect_ratio:'9:16',duration:8,resolution:'720p',medias:[{role:'start_image',value:$('Конфиг завода').item.json.avatar_media_id},{role:'audio_references',value:$('Higgsfield: озвучка').item.json.id}]}) }}"
+      },
+      "id": "higgsfield-видео-wan2_7",
+      "name": "Higgsfield: видео wan2_7",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 60
+      },
+      "id": "ждать-видео-60с",
+      "name": "Ждать видео 60с",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2220,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://platform.higgsfield.ai/v1/jobs/' + $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "статус-видео",
+      "name": "Статус видео",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2440,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "видео-готово?",
+      "name": "Видео готово?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2660,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendVideo",
+        "chatId": "={{ $('Конфиг завода').item.json.chat_id }}",
+        "video": "={{ $json.results.rawUrl }}",
+        "binaryData": false,
+        "additionalFields": {
+          "caption": "={{ $('Достать script+caption').item.json.caption }}",
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-отправить-рилс",
+      "name": "Telegram: отправить рилс",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2880,
+        140
+      ]
+    }
+  ],
+  "connections": {
+    "Расписание (10:00 ежедневно)": {
+      "main": [
+        [
+          {
+            "node": "Конфиг завода",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Конфиг завода": {
+      "main": [
+        [
+          {
+            "node": "LLM: текст рилса",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: текст рилса": {
+      "main": [
+        [
+          {
+            "node": "Достать script+caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Достать script+caption": {
+      "main": [
+        [
+          {
+            "node": "Higgsfield: озвучка",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Higgsfield: озвучка": {
+      "main": [
+        [
+          {
+            "node": "Ждать аудио 20с",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ждать аудио 20с": {
+      "main": [
+        [
+          {
+            "node": "Статус аудио",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Статус аудио": {
+      "main": [
+        [
+          {
+            "node": "Аудио готово?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Аудио готово?": {
+      "main": [
+        [
+          {
+            "node": "Higgsfield: видео wan2_7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ждать аудио 20с",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Higgsfield: видео wan2_7": {
+      "main": [
+        [
+          {
+            "node": "Ждать видео 60с",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ждать видео 60с": {
+      "main": [
+        [
+          {
+            "node": "Статус видео",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Статус видео": {
+      "main": [
+        [
+          {
+            "node": "Видео готово?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Видео готово?": {
+      "main": [
+        [
+          {
+            "node": "Telegram: отправить рилс",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ждать видео 60с",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "tags": []
+}
