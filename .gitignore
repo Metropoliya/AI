@@ -1,0 +1,14 @@
+# Секреты — НИКОГДА не коммитить
+*.env
+secrets.*
+.env
+token.txt
+
+# Питон
+__pycache__/
+*.pyc
+
+# Медиа-выгрузки
+*.mp4
+*.mp3
+!posts.json
