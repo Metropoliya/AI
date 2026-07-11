@@ -2,7 +2,7 @@ name: Post to Telegram
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 9,14,19 * * *'
 jobs:
   post:
     runs-on: ubuntu-latest
