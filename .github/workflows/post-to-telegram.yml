@@ -1,0 +1,28 @@
+name: Post reels to Telegram
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * *'
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, urllib.request, urllib.parse
+          TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
+          CHAT  = "-1004380165542"
+          posts = [
+            {"url": "https://d8j0ntlcm91z4.cloudfront.net/user_3GIv817RpRKyIq1yu4U0ocPsNRp/hf_20260711_121519_5c012853-d6f6-4fd3-8947-447b2c569500.mp4",
+             "cap": "✨ <b>Цвет, который сияет</b>\n\nУстала от тусклого оттенка? В ara studio подберём окрашивание именно под тебя — бережно и со вкусом. Волосы засияют ✨\n\n📍 Брест · ara_studio\n📲 Запись — в директ\n#ara_studio_brest #брест #окрашиваниебрест #парикмахербрест #волосыбрест"},
+            {"url": "https://d8j0ntlcm91z4.cloudfront.net/user_3GIv817RpRKyIq1yu4U0ocPsNRp/hf_20260711_121521_0dd2961c-9b06-4c5f-bace-fd4087756851.mp4",
+             "cap": "✂️ <b>Новый образ начинается со стрижки</b>\n\nПравильная форма меняет всё. Приходи — подберём стрижку под твои черты и создадим стиль вместе.\n\n📍 Брест · ara_studio\n📲 Запись — в директ\n#ara_studio_brest #брест #стрижкабрест #парикмахербрест #образбрест"},
+          ]
+          for p in posts:
+              data = urllib.parse.urlencode({"chat_id": CHAT, "video": p["url"], "caption": p["cap"], "parse_mode": "HTML", "supports_streaming": "true"}).encode()
+              r = urllib.request.urlopen(f"https://api.telegram.org/bot{TOKEN}/sendVideo", data=data, timeout=180)
+              res = json.loads(r.read()); print("ok" if res.get("ok") else res); time.sleep(3)
+          PY
