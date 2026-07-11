@@ -7,29 +7,24 @@ jobs:
   post:
     runs-on: ubuntu-latest
     steps:
-      - name: Post text
+      - name: Post photo
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           python3 - <<'PY'
           import os, json, time, urllib.request, urllib.parse
           TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]; CHAT = "-1004380165542"
-          texts = [
-            "Красивые волосы начинаются с заботы. В ara studio в Бресте подберём уход именно под тебя — запишись и почувствуй разницу.",
-            "Новый образ меняет настроение. Хочешь освежить стрижку или цвет? Ждём тебя в ara studio, Брест. Запись — в директ.",
-            "Не жди особого повода, чтобы нравиться себе. Приходи в ara studio в Бресте — сделаем красиво уже сегодня.",
-            "Тусклый цвет? Подберём окрашивание, которое подчеркнёт именно тебя. ara studio, Брест.",
-            "Укладка, которая держится весь день — это техника и правильный уход. Научим и сделаем. ara studio, Брест.",
-            "Здоровые, блестящие волосы — наша работа. Запишись в ara studio в Бресте и доверься мастеру.",
-            "Стрижка под форму лица молодит лучше любого крема. Подберём твою в ara studio, Брест.",
-            "Свободные окошки на этой неделе есть! Освежи образ в ara studio, Брест. Запись — в директ.",
-            "Окрашивание без вреда — это реально, когда за дело берётся профи. ara studio, Брест.",
-            "Каждая деталь — про тебя: уход, цвет, форма. Приходи — и увидишь результат в зеркале. ara studio, Брест.",
-            "Волосы любят заботу каждый день. Подскажем домашний уход и подберём средства. ara studio, Брест.",
-            "Хочешь тот самый «дорогой» вид волос? Начни с записи в ara studio, Брест.",
+          BASE = "https://raw.githubusercontent.com/Metropoliya/AI/48f7c9ab8395252fe24f7d44bc74c1fc4d058486/images/"
+          posts = [
+            ("post0.jpg", "Красивые волосы начинаются с правильного ухода. Подберём твой образ и домашний уход. ara studio, Брест — запись в директ 💇‍♀️"),
+            ("post1.jpg", "Здоровый блеск волос — это регулярный уход и хороший мастер. Приходи в ara studio, Брест. Запись — в директ ✨"),
+            ("post2.jpg", "Твой идеальный цвет волос подберём индивидуально — бережно и стильно. ara studio, Брест. Запись — в директ 🎨"),
+            ("post3.jpg", "Окрашивание без вреда — реально, когда работает профи. Доверься мастеру ara studio, Брест. Запись — в директ"),
+            ("post4.jpg", "Укладка, которая держится весь день — дело техники и ухода. Научим и сделаем. ara studio, Брест. Запись — в директ"),
+            ("post5.jpg", "Новый образ — новое настроение. Освежи стрижку или цвет в ara studio, Брест. Запись — в директ 💫"),
           ]
-          i = int(time.time() // 300) % len(texts)
-          data = urllib.parse.urlencode({"chat_id": CHAT, "text": texts[i], "parse_mode": "HTML", "disable_web_page_preview": "true"}).encode()
-          r = urllib.request.urlopen(f"https://api.telegram.org/bot{TOKEN}/sendMessage", data=data)
+          fn, cap = posts[int(time.time() // 300) % len(posts)]
+          data = urllib.parse.urlencode({"chat_id": CHAT, "photo": BASE + fn, "caption": cap, "parse_mode": "HTML"}).encode()
+          r = urllib.request.urlopen(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=data)
           print(json.loads(r.read()).get("ok"))
           PY
