@@ -20,8 +20,10 @@ n8n → **Workflows → Import from File** → выбери `content-factory-wor
 
 ### 2. Ключи (Credentials)
 Создай в n8n → **Credentials**:
-- **Higgsfield** — тип *Header Auth*: `Authorization` = `Bearer <твой_higgsfield_api_key>`
-  Ключ бери в аккаунте Higgsfield (раздел API/Developer, `cloud.higgsfield.ai`). Он тратит **те же кредиты**, что и твой аккаунт, и видит те же ассеты (аватар, голос).
+- **Higgsfield** — тип *Header Auth*: имя `Authorization`, значение `Key <api-key>:<secret>`
+  (пара из `cloud.higgsfield.ai`: `Key 001fbed2-...:0e42416b...`). База API `https://platform.higgsfield.ai`.
+  Тратит **те же кредиты**, что и твой аккаунт.
+  ⚠️ Проверь в своём API-дашборде, какие модели доступны по REST: image2video (`POST /v1/image2video/dop`) точно есть; TTS клон-голосом и talking-avatar (Wan/speech2video) могут быть только в приложении/MCP — тогда эти шаги оставляем на app.
 - **OpenAI** (или другой LLM) — тип *Header Auth*: `Authorization` = `Bearer <openai_key>` (нода «LLM: текст рилса»).
 - **Telegram** — нода Telegram → Credential *Telegram API* → вставь токен бота `@BotFather`.
 
