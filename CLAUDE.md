@@ -5,7 +5,8 @@
 посты-картинки) в Telegram-канал `-1004380165542` и Instagram, без участия владелицы.
 
 ## 📌 Прочитай перед работой
-**Вся память проекта, рецепты, ID, доступы, проблемы → [`CONTENT_FACTORY_MEMORY.md`](./CONTENT_FACTORY_MEMORY.md).**
+- **Инструкция с НУЛЯ (что подключить, куда идти, что нажать) → [`SETUP_FROM_ZERO.md`](./SETUP_FROM_ZERO.md).**
+- **Полная память проекта (рецепты, ID, доступы, проблемы) → [`CONTENT_FACTORY_MEMORY.md`](./CONTENT_FACTORY_MEMORY.md).**
 
 Кратко:
 - Рилсы: Higgsfield Marketing Studio, аватар `5c024c60-97ff-4007-acfa-853d2716faf0`.
