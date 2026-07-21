@@ -154,7 +154,17 @@ permissions (`.claude/settings.local.json`), массово убивать Apify
   шумодав+гейт (ffmpeg afftdn+agate) снижают, но не убирают полностью. ❌
 - Seedance 2.0 с audio_references — губы НЕ попадают. ❌
 
-Что РАБОТАЕТ (текущий лучший рецепт рила):
+🏆 НАЙДЕНО ЛИПСИНК-ЗВЕНО (2026-07-21): модель **`sync_so` («Sync Lipsync 3»)** в
+generate_video — принимает medias roles `input_video` + `input_audio`, перерисовывает
+ТОЛЬКО губы готового видео под готовую дорожку, звук кладёт без пересинтеза.
+Параметр sync_mode: remap (ретайминг видео под аудио) | bounce | loop | cut_off | silence.
+⚠️ Поиск models_explore(search) её НЕ находит (пустые description/tags) — только
+models_explore(action='list', type='video'). Итоговый конвейер рила:
+«текст → MiniMax-клон (text2speech_v2 variant=minimax) → loudnorm −14 LUFS →
+импорт аудио → Marketing Studio видео (кадры) → sync_so (липсинк) → авто-проверка».
+Проверенный образец: job `ed7b1906` (MS-видео e81bd324 + аудио 34b0e5c0).
+
+Что РАБОТАЕТ (альтернатива, тоже проверена):
 1. Озвучка: `generate_audio` model=`text2speech_v2`, variant=`elevenlabs`,
    voice_type=`element`, voice_id=`6e3ace60-8316-4f32-82c4-630bec0902f2` («Александра-3»,
    клон голоса владелицы). Чистый русский без акцента (проверено транскрипцией).
